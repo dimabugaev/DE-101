@@ -1,0 +1,386 @@
+@startuml concept_star
+
+skinparam linetype ortho
+hide methods
+
+
+entity order_detales_fact
+entity customer_dim
+'entity location_dim
+entity product_dim
+entity date_dim
+
+customer_dim ||-u-|{ order_detales_fact
+'location_dim - order_detales_fact
+product_dim ||-|{ order_detales_fact
+date_dim ||-l-|{ order_detales_fact
+
+@enduml
+
+@startuml clogical_star
+
+skinparam linetype ortho
+hide methods
+
+
+entity order_detales_fact{
+    order_id
+    order_date
+    ship_date
+    ship_mode
+    sales_name
+    country
+    city
+    state
+    postal_code
+    region
+    returned
+    sales
+    quantity
+    discount
+    profit
+}
+entity customer_dim{
+    customer_id
+    customer_name
+    segment
+}
+'entity location_dim
+entity product_dim{
+    product_id
+    category
+    sub_category
+    product_name
+}
+entity date_dim{
+    date
+    year
+    month
+    month_day
+    quarter
+    week
+    week_day
+}
+
+customer_dim ||-u-|{ order_detales_fact
+'location_dim - order_detales_fact
+product_dim ||-|{ order_detales_fact
+date_dim ||-l-|{ order_detales_fact
+
+@enduml
+
+@startuml phisical_star
+
+skinparam linetype ortho
+hide methods
+
+
+entity order_detales_fact{
+    *row_key 
+    order_id 
+    +order_date_key
+    +ship_date_key
+    +product_key
+    +customer_key
+    ship_mode
+    country
+    city
+    state
+    postal_code
+    region
+    sales_name
+    returned
+    sales
+    quantity
+    discount
+    profit
+}
+entity customer_dim{
+    *customer_key
+    customer_id
+    customer_name
+    segment
+}
+'entity location_dim
+entity product_dim{
+    *product_key
+    product_id
+    category
+    sub_category
+    product_name
+}
+entity date_dim{
+    *date
+    year
+    month
+    month_day
+    quarter
+    week
+    week_day
+}
+
+customer_dim ||-u-|{ order_detales_fact
+'location_dim - order_detales_fact
+product_dim ||-|{ order_detales_fact
+date_dim ||-l-|{ order_detales_fact
+
+@enduml
+
+@startuml concept_3nf
+
+skinparam linetype ortho
+hide methods
+
+
+entity order_dim
+entity order_detales_fact
+entity ship_mode_dim
+
+entity customer_segment_dim
+
+entity country_dim
+entity city_dim
+entity region_dim
+entity state_dim
+entity location_dim
+
+entity customer_dim
+
+entity category_dim
+entity sub_category_dim
+entity product_dim
+
+'entity date_dim
+
+entity sales_manager_dim
+
+category_dim -l-{ sub_category_dim
+sub_category_dim -d-{ product_dim
+product_dim -{ order_detales_fact
+
+customer_dim -u-{ order_dim
+
+
+region_dim -{ country_dim 
+country_dim -d-{ state_dim 
+state_dim -{ city_dim 
+city_dim -{location_dim
+
+location_dim -{ customer_dim
+
+region_dim ||-u-|| sales_manager_dim
+
+order_dim -u-{ order_detales_fact
+order_dim }-l- ship_mode_dim
+
+customer_dim }-d- customer_segment_dim
+
+
+
+@enduml
+
+@startuml logical_3nf
+
+skinparam linetype ortho
+hide methods
+
+
+entity order_dim{
+    order_id
+    order_date
+    ship_date
+    returned
+}
+entity order_detales_fact{
+    row_id
+    sales
+    quantity
+    discount
+    profit
+}
+entity ship_mode_dim{
+    shipmode_name
+}
+
+entity customer_segment_dim{
+    segment_name
+}
+
+entity country_dim{
+    country_name
+}
+entity city_dim{
+    city_name
+}
+entity region_dim{
+    region_name
+}
+entity state_dim{
+    state_name
+}
+entity location_dim{
+    postal_code
+}
+
+entity customer_dim{
+    customer_id
+    custoner_name
+}
+
+entity category_dim{
+    category_name
+}
+entity sub_category_dim{
+    sub_category_name
+}
+entity product_dim{
+    product_id
+    product_name
+}
+
+'entity date_dim
+
+entity sales_manager_dim{
+    sales_name
+}
+
+
+category_dim -l-{ sub_category_dim
+sub_category_dim -d-{ product_dim
+product_dim -{ order_detales_fact
+
+customer_dim -u-{ order_dim
+
+
+region_dim -{ country_dim 
+country_dim -d-{ state_dim 
+state_dim -{ city_dim 
+city_dim -{location_dim
+
+location_dim -{ customer_dim
+location_dim ||-|{ order_dim
+
+region_dim ||-u-|| sales_manager_dim
+
+order_dim -u-{ order_detales_fact
+order_dim }|-o| ship_mode_dim
+
+customer_dim }-d- customer_segment_dim
+
+
+
+@enduml
+
+@startuml phisical_3nf
+
+skinparam linetype ortho
+hide methods
+
+
+entity order_dim{
+    *order_key
+    order_id
+    order_date
+    ship_date
+    returned
+    +location_key
+    +ship_mode_key
+    +customer_key
+}
+
+entity order_detales_fact{
+    *row_id
+    +order_key
+    +product_key
+    sales
+    quantity
+    discount
+    profit
+}
+entity ship_mode_dim{
+    *ship_mode_key
+    shipmode_name
+}
+
+entity customer_segment_dim{
+    *segment_key
+    segment_name
+}
+
+entity country_dim{
+    *country_key
+    +region_key
+    country_name
+}
+entity city_dim{
+    *city_key
+    +state_key
+    city_name
+}
+entity region_dim{
+    *region_key
+    region_name
+}
+entity state_dim{
+    *state_key
+    +country_key
+    state_name
+}
+entity location_dim{
+    *location_key
+    +city_key
+    postal_code
+}
+
+entity customer_dim{
+    *customer_key
+    +segment_key
+    customer_id
+    custoner_name
+}
+
+entity category_dim{
+    *category_key
+    category_name
+}
+entity sub_category_dim{
+    *sub_category_key
+    +category_key
+    sub_category_name
+}
+entity product_dim{
+    product_id
+    product_name
+}
+
+'entity date_dim
+
+entity sales_manager_dim{
+    *sales_manager_key
+    +region_key
+    sales_name
+}
+
+
+category_dim -l-{ sub_category_dim
+sub_category_dim -d-{ product_dim
+product_dim -{ order_detales_fact
+
+customer_dim -u-{ order_dim
+
+
+region_dim -{ country_dim 
+country_dim -d-{ state_dim 
+state_dim -{ city_dim 
+city_dim -{location_dim
+
+location_dim ||-|{ order_dim
+
+region_dim -u-|| sales_manager_dim
+
+order_dim -u-{ order_detales_fact
+order_dim }|-|| ship_mode_dim
+
+customer_dim }-d- customer_segment_dim
+
+@enduml
