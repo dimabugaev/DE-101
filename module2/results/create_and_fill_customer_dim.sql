@@ -13,7 +13,7 @@ select distinct
 	o.customer_id customer_id,
 	o.customer_name customer_name,
 	o.segment segment 
-from public.orders o;
+from stg.orders o;
 
 select 
 	*

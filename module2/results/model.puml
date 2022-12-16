@@ -6,14 +6,18 @@ hide methods
 
 entity order_detales_fact
 entity customer_dim
-'entity location_dim
+entity location_dim
 entity product_dim
 entity date_dim
+entity people_dim
+entity shiping_dim
 
 customer_dim ||-u-|{ order_detales_fact
-'location_dim - order_detales_fact
+shiping_dim ||-u-|{ order_detales_fact
+location_dim ||-d-|{ order_detales_fact
 product_dim ||-|{ order_detales_fact
 date_dim ||-l-|{ order_detales_fact
+people_dim ||-d-|{ order_detales_fact
 
 @enduml
 
@@ -27,13 +31,6 @@ entity order_detales_fact{
     order_id
     order_date
     ship_date
-    ship_mode
-    sales_name
-    country
-    city
-    state
-    postal_code
-    region
     returned
     sales
     quantity
@@ -45,7 +42,13 @@ entity customer_dim{
     customer_name
     segment
 }
-'entity location_dim
+entity location_dim{
+    country
+    city
+    state
+    postal_code
+    region    
+}
 entity product_dim{
     product_id
     category
@@ -62,8 +65,17 @@ entity date_dim{
     week_day
 }
 
+entity people_dim{
+    sales_name    
+}
+entity shiping_dim{
+    ship_mode
+}
+
 customer_dim ||-u-|{ order_detales_fact
-'location_dim - order_detales_fact
+shiping_dim ||-u-|{ order_detales_fact
+location_dim ||-d-|{ order_detales_fact
+people_dim ||-d-|{ order_detales_fact
 product_dim ||-|{ order_detales_fact
 date_dim ||-l-|{ order_detales_fact
 
@@ -82,13 +94,9 @@ entity order_detales_fact{
     +ship_date_key
     +product_key
     +customer_key
-    ship_mode
-    country
-    city
-    state
-    postal_code
-    region
-    sales_name
+    +shipping_key
+    +location_key
+    +people_key
     returned
     sales
     quantity
@@ -101,7 +109,14 @@ entity customer_dim{
     customer_name
     segment
 }
-'entity location_dim
+entity location_dim{
+    *location_key
+    country
+    city
+    state
+    postal_code
+    region    
+}
 entity product_dim{
     *product_key
     product_id
@@ -119,10 +134,21 @@ entity date_dim{
     week_day
 }
 
+entity people_dim{
+    *people_key
+    sales_name    
+}
+entity shiping_dim{
+    *shipping_key
+    ship_mode
+}
+
 customer_dim ||-u-|{ order_detales_fact
-'location_dim - order_detales_fact
+shiping_dim ||-u-|{ order_detales_fact
+location_dim ||-d-|{ order_detales_fact
 product_dim ||-|{ order_detales_fact
 date_dim ||-l-|{ order_detales_fact
+people_dim ||-d-|{ order_detales_fact
 
 @enduml
 

@@ -9,22 +9,21 @@ CREATE TABLE dwh.order_detales_fact
 	 customer_key   int NOT NULL,	
 	 order_date_key date NOT NULL,
 	 product_key    int NOT NULL,
-	 ship_mode      varchar NOT NULL,
-	 sales_name     varchar NOT NULL,
+	 shipping_key   int NOT NULL,
+	 people_key     int NOT NULL,
+	 location_key	int NOT NULL,
 	 returned       boolean NOT NULL,
 	 sales          decimal(18,2) NOT NULL,
 	 quantity       int NOT NULL,
 	 discount       decimal(3,2) NOT NULL,
 	 profit         decimal(18,2) NOT NULL,
-	 country        varchar NOT NULL,
-	 "state"        varchar NOT NULL,
-	 city			varchar NOT NULL,
-	 postal_code    varchar(50),
-	 region         varchar(50) NOT NULL,
-	 CONSTRAINT FK_1 FOREIGN KEY ( product_key ) REFERENCES product_dim ( product_key ),
-	 CONSTRAINT FK_2 FOREIGN KEY ( order_date_key ) REFERENCES date_dim ( "date" ),
-	 CONSTRAINT FK_3 FOREIGN KEY ( customer_key ) REFERENCES customer_dim ( customer_key ),
-	 CONSTRAINT FK_4 FOREIGN KEY ( ship_date_key ) REFERENCES date_dim ( "date" )
+	 CONSTRAINT FK_1 FOREIGN KEY ( product_key ) REFERENCES dwh.product_dim ( product_key ),
+	 CONSTRAINT FK_2 FOREIGN KEY ( order_date_key ) REFERENCES dwh.date_dim ( "date" ),
+	 CONSTRAINT FK_3 FOREIGN KEY ( customer_key ) REFERENCES dwh.customer_dim ( customer_key ),
+	 CONSTRAINT FK_4 FOREIGN KEY ( ship_date_key ) REFERENCES dwh.date_dim ( "date" ),
+	 CONSTRAINT FK_5 FOREIGN KEY ( shipping_key ) REFERENCES dwh.shiping_dim ( shipping_key ),
+	 CONSTRAINT FK_6 FOREIGN KEY ( people_key ) REFERENCES dwh.people_dim  ( people_key ),
+	 CONSTRAINT FK_7 FOREIGN KEY ( location_key ) REFERENCES dwh.location_dim  ( location_key )
 );
 
 CREATE INDEX FK_2 ON dwh.order_detales_fact
@@ -47,6 +46,21 @@ CREATE INDEX FK_5 ON dwh.order_detales_fact
  	ship_date_key
 );
 
+CREATE INDEX FK_6 ON dwh.order_detales_fact
+(
+ 	shipping_key
+);
+
+CREATE INDEX FK_7 ON dwh.order_detales_fact
+(
+ 	people_key
+);
+
+CREATE INDEX FK_8 ON dwh.order_detales_fact
+(
+ 	location_key
+);
+
 
 INSERT INTO dwh.order_detales_fact(
 	row_id, 
@@ -54,28 +68,29 @@ INSERT INTO dwh.order_detales_fact(
 	ship_date_key, 
 	customer_key, 
 	order_date_key, 
-	product_key, 
-	ship_mode, 
-	sales_name, 
+	product_key,
+	
+	shipping_key,
+	people_key,
+	location_key,
+	 
 	returned, 
 	sales, 
 	quantity, 
 	discount, 
-	profit, 
-	country, 
-	state,
-	city,
-	postal_code, 
-	region)
+	profit)
 SELECT 
 	o.row_id, 
 	o.order_id,
 	o.ship_date,
 	c.customer_key, 
 	o.order_date,
-	p.product_key, 
-	o.ship_mode,
-	s.person,
+	p.product_key,
+	
+	sd.shipping_key,
+	pd.people_key,
+	ld.location_key,
+	
 	case 
 		when r.returned is null then
 			false
@@ -85,24 +100,36 @@ SELECT
 	o.sales, 
 	o.quantity, 
 	o.discount, 
-	o.profit, 
-	o.country,
-	o.state, 
-	o.city, 
-	o.postal_code, 
-	o.region
-FROM public.orders o left join dwh.customer_dim c on o.customer_id = c.customer_id 
+	o.profit
+FROM stg.orders o left join dwh.customer_dim c on o.customer_id = c.customer_id 
 	left join dwh.product_dim p on o.product_id = p.product_id and o.product_name = p.product_name
-	left join public.people s on o.region = s.region
+	left join stg.people s on o.region = s.region
+	left join dwh.people_dim pd on pd.sales_name = s.person
+	left join dwh.shiping_dim sd on sd.ship_mode = o.ship_mode
+	left join dwh.location_dim ld on ld.country = o.country and ld.city = o.city and ld.state = o.state 
+		and ld.region = o.region and (ld.postal_code = o.postal_code::varchar or o.postal_code is null)
 	left join (
 		select distinct 
 			*
-		from public."returns") r on o.order_id = r.order_id ;
+		from stg."returns") r on o.order_id = r.order_id ;
 	
 	
 select 
 	*
 from dwh.order_detales_fact odf; 
+
+--test
+
+select 
+count(*)
+from dwh.order_detales_fact odf 
+join dwh.customer_dim cd on cd.customer_key = odf.customer_key 
+join dwh.date_dim ship_date on ship_date."date" = odf.ship_date_key
+join dwh.date_dim order_date on order_date."date" = odf.order_date_key
+join dwh.location_dim ld on ld.location_key = odf.location_key 
+join dwh.people_dim pd on pd.people_key = odf.people_key 
+join dwh.product_dim product on product.product_key = odf.product_key
+join dwh.shiping_dim sd on sd.shipping_key = odf.shipping_key 
 
 
 

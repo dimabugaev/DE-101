@@ -15,7 +15,7 @@ select distinct
 	o.category  category,
 	o.subcategory subcategory,
 	o.product_name product_name
-from public.orders o;
+from stg.orders o;
 
 select 
 	*

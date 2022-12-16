@@ -72,7 +72,7 @@ begin
 						else
 							min(o.ship_date)
 					end min_date
-				  from public.orders o);
+				  from stg.orders o);
 				 
 	enddate := (select 
 					case 
@@ -81,7 +81,7 @@ begin
 						else
 							max(o.ship_date)
 					end min_date
-				from public.orders o);
+				from stg.orders o);
 
 	RAISE notice ' startdate (%) enddate (%) ',startdate, enddate;
 	
